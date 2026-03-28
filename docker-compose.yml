@@ -4,7 +4,6 @@ services:
   web:
     build: ./bulleye_backend
     container_name: bullseye_web
-    command: gunicorn bulleye_backend.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./bulleye_backend:/app
     ports:
@@ -14,6 +13,7 @@ services:
     depends_on:
       - db
       - redis
+    restart: always
 
   db:
     image: postgres:15
@@ -33,6 +33,7 @@ services:
     container_name: bullseye_redis
     ports:
       - "6379:6379"
+    restart: always
 
   celery:
     build: ./bulleye_backend
@@ -45,6 +46,7 @@ services:
       - redis
     env_file:
       - .env
+    restart: always
 
   celery-beat:
     build: ./bulleye_backend
@@ -57,6 +59,21 @@ services:
       - redis
     env_file:
       - .env
+    restart: always
+    
+  frontend:
+    build: ./ai-bulls-lens
+    container_name: bullseye_frontend
+    volumes:
+      - ./ai-bulls-lens:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+    depends_on:
+      - web
+    restart: always
 
 volumes:
   postgres_data:
