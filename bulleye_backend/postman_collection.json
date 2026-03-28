@@ -1,0 +1,236 @@
+{
+    "info": {
+        "name": "Bullseye Invest API Collection",
+        "_postman_id": "b1234567-89ab-cdef-0123-456789abcdef",
+        "description": "Complete API collection for Bullseye Invest Django backend",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://127.0.0.1:8000"
+        }
+    ],
+    "item": [
+        {
+            "name": "Accounts",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"test123\"\n}"
+                        },
+                        "url": "{{base_url}}/api/auth/register/"
+                    }
+                },
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"test123\"\n}"
+                        },
+                        "url": "{{base_url}}/api/auth/login/"
+                    }
+                },
+                {
+                    "name": "Profile",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/auth/profile/"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Market Data",
+            "item": [
+                {
+                    "name": "Stock List",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/market/stocks/"
+                    }
+                },
+                {
+                    "name": "Stock Detail",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/market/stock/RELIANCE/"
+                    }
+                },
+                {
+                    "name": "Filings",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/market/filings/"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Signals",
+            "item": [
+                {
+                    "name": "Opportunity Radar",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/signals/opportunities/"
+                    }
+                },
+                {
+                    "name": "Stock Signal",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/signals/stock/RELIANCE/"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Analytics",
+            "item": [
+                {
+                    "name": "Pattern Detection",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/analytics/patterns/TCS/"
+                    }
+                },
+                {
+                    "name": "Indicators",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/analytics/indicators/TCS/"
+                    }
+                },
+                {
+                    "name": "Backtest",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/analytics/backtest/TCS/"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Portfolio",
+            "item": [
+                {
+                    "name": "Portfolio Summary",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/portfolio/"
+                    }
+                },
+                {
+                    "name": "Holdings",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/portfolio/holdings/"
+                    }
+                },
+                {
+                    "name": "Portfolio Analysis",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/portfolio/analysis/"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Alerts",
+            "item": [
+                {
+                    "name": "Get Alerts",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/alerts/"
+                    }
+                },
+                {
+                    "name": "Subscribe Alert",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"stock\": \"RELIANCE\",\n  \"type\": \"breakout\"\n}"
+                        },
+                        "url": "{{base_url}}/api/alerts/subscribe/"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "AI Engine",
+            "item": [
+                {
+                    "name": "Market Chat",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"query\": \"Why is Reliance going up?\"\n}"
+                        },
+                        "url": "{{base_url}}/api/ai/chat/"
+                    }
+                },
+                {
+                    "name": "Stock Explain",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/ai/explain/RELIANCE/"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Gateway API",
+            "item": [
+                {
+                    "name": "Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/dashboard/"
+                    }
+                },
+                {
+                    "name": "Global Search",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/search/?q=TCS"
+                    }
+                }
+            ]
+        }
+    ]
+}

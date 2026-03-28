@@ -1,0 +1,7 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.AlertListView.as_view()),
+    path('subscribe/', views.SubscribeAlertView.as_view()),
+]
