@@ -3,8 +3,9 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Search, Bell } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import { useTheme } from "@/hooks/useTheme";
-import { mockAlerts } from "@/lib/mock-data";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -15,7 +16,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
-  const unreadAlerts = mockAlerts.filter((a) => !a.read).length;
+  const { data: alertsData } = useApi(() => api.alerts.list(), []);
+  const unreadAlerts = (alertsData ?? []).filter((a) => !a.read).length;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

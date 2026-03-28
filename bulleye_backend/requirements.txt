@@ -17,6 +17,7 @@ psycopg2-binary==2.9.9
 celery==5.4.0
 redis==5.0.4
 django-celery-beat==2.6.0
+amqp>=5.2.0
 
 # CORS (for frontend integration)
 

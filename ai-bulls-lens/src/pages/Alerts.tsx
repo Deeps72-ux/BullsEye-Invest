@@ -1,18 +1,36 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { mockAlerts } from "@/lib/mock-data";
 import { Bell, BellOff, Check } from "lucide-react";
-import { useState } from "react";
 import { motion } from "framer-motion";
+import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
+import { useState } from "react";
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded bg-secondary/70 ${className}`} />;
+}
 
 export default function Alerts() {
-  const [alerts, setAlerts] = useState(mockAlerts);
+  const { data: alertsData, loading, refetch } = useApi(() => api.alerts.list(), []);
+  const [localRead, setLocalRead] = useState<Set<number>>(new Set());
 
-  const markRead = (id: number) => {
-    setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, read: true } : a)));
+  const alerts = (alertsData ?? []).map((a) => ({
+    ...a,
+    read: a.read || localRead.has(a.id),
+  }));
+
+  const markRead = async (id: number) => {
+    setLocalRead((prev) => new Set([...prev, id]));
+    try {
+      await api.alerts.markRead(id);
+    } catch {}
   };
 
-  const markAllRead = () => {
-    setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+  const markAllRead = async () => {
+    const ids = (alertsData ?? []).map((a) => a.id);
+    setLocalRead(new Set(ids));
+    try {
+      await api.alerts.markAllRead();
+    } catch {}
   };
 
   return (
@@ -31,35 +49,44 @@ export default function Alerts() {
         </div>
 
         <div className="space-y-3">
-          {alerts.map((alert, i) => (
-            <motion.div key={alert.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.08 }}
-              onClick={() => markRead(alert.id)}
-              className={`bg-card border rounded-xl p-4 cursor-pointer transition-all ${
-                alert.read ? "border-border opacity-60" : "border-primary/30 hover:border-primary/50"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className={`mt-0.5 h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    alert.read ? "bg-secondary" : "bg-primary/10"
-                  }`}>
-                    {alert.read ? <BellOff className="h-4 w-4 text-muted-foreground" /> : <Bell className="h-4 w-4 text-primary" />}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-heading font-semibold text-sm text-foreground">{alert.symbol}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">{alert.type}</span>
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)
+            : alerts.map((alert, i) => (
+                <motion.div
+                  key={alert.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  onClick={() => markRead(alert.id)}
+                  className={`bg-card border rounded-xl p-4 cursor-pointer transition-all ${
+                    alert.read ? "border-border opacity-60" : "border-primary/30 hover:border-primary/50"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`mt-0.5 h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          alert.read ? "bg-secondary" : "bg-primary/10"
+                        }`}
+                      >
+                        {alert.read ? (
+                          <BellOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Bell className="h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-heading font-semibold text-sm text-foreground">{alert.symbol}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">{alert.type}</span>
+                        </div>
+                        <p className="text-sm text-foreground/80 mt-1">{alert.message}</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-foreground/80 mt-1">{alert.message}</p>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{alert.timestamp}</span>
                   </div>
-                </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">{alert.timestamp}</span>
-              </div>
-            </motion.div>
-          ))}
+                </motion.div>
+              ))}
         </div>
       </div>
     </DashboardLayout>
