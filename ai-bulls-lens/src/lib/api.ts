@@ -157,12 +157,12 @@ export const api = {
   },
 
   ai: {
-    chat: (message: string) =>
-      fetchApi<{ response: string }>("/ai/chat/", {
+    chat: (query: string) =>
+      fetchApi<any>("/ai/chat/", {
         method: "POST",
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ query }),
       }),
     explain: (symbol: string) =>
-      fetchApi<{ explanation: string }>(`/ai/explain/${symbol}/`),
+      fetchApi<any>(`/ai/explain/${symbol}/`),
   },
 };

@@ -138,3 +138,22 @@ CORS_ALLOW_ALL_ORIGINS = True
 CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+
+# ✅ AI Engine Configuration
+GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
+TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', '')
+
+AI_ENGINE = {
+    # Enable parallel agent execution via ThreadPoolExecutor
+    'PARALLELISM': True,
+    # Max threads for parallel agent dispatch
+    'MAX_WORKERS': 4,
+    # Minimum signal confidence to include in analysis (0-100)
+    'SIGNAL_CONFIDENCE_THRESHOLD': 60,
+    # Whether the LLM (Groq) Explanation Agent is active
+    'LLM_ENABLED': bool(os.getenv('GROQ_API_KEY', '')),
+    # Cache AI responses in Redis (future feature)
+    'CACHE_ENABLED': False,
+    'CACHE_TTL_SECONDS': 300,  # 5 minutes
+}
