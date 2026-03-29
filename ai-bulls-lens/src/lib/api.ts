@@ -164,5 +164,7 @@ export const api = {
       }),
     explain: (symbol: string) =>
       fetchApi<any>(`/ai/explain/${symbol}/`),
+    history: () =>
+      fetchApi<{ count: number; history: any[] }>("/ai/history/"),
   },
 };
