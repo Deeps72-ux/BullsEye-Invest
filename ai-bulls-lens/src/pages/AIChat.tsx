@@ -1,12 +1,21 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, TrendingUp, Activity, PieChart, ArrowRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import { useNavigate } from "react-router-dom";
+import { api } from "@/lib/api";
+
+interface ChatAction {
+  label: string;
+  to: string;
+  icon: string;
+}
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  actions?: ChatAction[];
 }
 
 const mockResponses: Record<string, string> = {
@@ -16,6 +25,7 @@ const mockResponses: Record<string, string> = {
 };
 
 export default function AIChat() {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "assistant", content: mockResponses.default },
   ]);
@@ -34,16 +44,48 @@ export default function AIChat() {
     setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
     setLoading(true);
 
-    // Mock response
-    setTimeout(() => {
-      const lower = userMsg.toLowerCase();
-      let response = "That's a great question! Based on current market data, I'd recommend looking at the **Signals** page for AI-generated opportunities. You can also check individual stock pages for detailed technical analysis.\n\nWould you like me to analyze a specific stock?";
-      if (lower.includes("aapl") || lower.includes("apple")) response = mockResponses.aapl;
-      else if (lower.includes("market") || lower.includes("overview")) response = mockResponses.market;
+    try {
+      const res = await api.ai.chat(userMsg);
+      let responseMd = res.summary || "";
 
-      setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+      if (res.reasoning && res.reasoning.length > 0) {
+        responseMd += "\n\n**Reasoning:**\n" + res.reasoning.map((r: string) => `- ${r}`).join("\n");
+      }
+
+      if (res.final_recommendation) {
+        responseMd += `\n\n**Recommendation:** \`${res.final_recommendation}\` (Confidence: ${res.confidence_label})`;
+      }
+
+      if (res.beginner_tip) {
+        responseMd += `\n\n💡 **Tip:** ${res.beginner_tip}`;
+      }
+
+      if (res.market_data?.price && res.market_data.price > 0) {
+        responseMd = `*Current Price: ₹${res.market_data.price}*\n\n` + responseMd;
+      }
+
+      let actions: ChatAction[] = [];
+      if (res.symbol) {
+        actions.push({ label: `${res.symbol} Analysis`, to: `/stock/${res.symbol}`, icon: "trending" });
+        if (res.signals?.active_signals?.length > 0 || res.signals?.total > 0) {
+          actions.push({ label: "Opportunity Radar", to: "/signals", icon: "activity" });
+        }
+      } else if (res.intent === "portfolio_review") {
+        actions.push({ label: "Open Portfolio", to: "/portfolio", icon: "piechart" });
+      } else if (res.intent === "market_overview") {
+        actions.push({ label: "Market Overview", to: "/markets", icon: "trending" });
+      }
+      
+      if (actions.length === 0) {
+          actions.push({ label: "View Signals", to: "/signals", icon: "activity" });
+      }
+
+      setMessages((prev) => [...prev, { role: "assistant", content: responseMd, actions }]);
+    } catch (err: any) {
+      setMessages((prev) => [...prev, { role: "assistant", content: `❌ Error: ${err.message || "Failed to contact AI Engine"}` }]);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -72,8 +114,23 @@ export default function AIChat() {
                   : "bg-card border border-border text-foreground"
               }`}>
                 {msg.role === "assistant" ? (
-                  <div className="prose prose-sm prose-invert max-w-none [&_table]:text-foreground [&_th]:text-muted-foreground [&_td]:text-foreground [&_strong]:text-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_p]:text-foreground/90 [&_li]:text-foreground/90">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  <div className="flex flex-col gap-3">
+                    <div className="prose prose-sm prose-invert max-w-none [&_table]:text-foreground [&_th]:text-muted-foreground [&_td]:text-foreground [&_strong]:text-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_p]:text-foreground/90 [&_li]:text-foreground/90">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                    {msg.actions && msg.actions.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/50">
+                        {msg.actions.map((action, idx) => (
+                           <button key={idx} onClick={() => navigate(action.to)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 text-xs font-medium text-secondary-foreground transition-colors border border-border/30">
+                              {action.icon === "trending" && <TrendingUp className="w-3.5 h-3.5 text-primary" />}
+                              {action.icon === "activity" && <Activity className="w-3.5 h-3.5 text-warning" />}
+                              {action.icon === "piechart" && <PieChart className="w-3.5 h-3.5 text-accent" />}
+                              {action.label}
+                              <ArrowRight className="w-3 h-3 ml-0.5 opacity-50" />
+                           </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   msg.content
