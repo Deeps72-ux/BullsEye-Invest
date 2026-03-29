@@ -30,9 +30,7 @@ export function AppSidebar({ theme, toggleTheme }: AppSidebarProps) {
       <SidebarContent>
         <div className={`p-4 ${collapsed ? "px-2" : ""}`}>
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-foreground font-bold text-sm">B</span>
-            </div>
+            <img src="/bullseye.png" alt="BullsEye" className="h-8 w-8 rounded-lg object-contain flex-shrink-0" />
             {!collapsed && <span className="font-heading font-bold text-lg text-foreground">BullsEye</span>}
           </div>
         </div>

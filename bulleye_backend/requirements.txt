@@ -35,6 +35,7 @@ numpy==1.26.4
 # Technical Analysis (optional but useful)
 
 ta==0.11.0
+yfinance==0.2.38
 
 # AI / LLM Integration
 
